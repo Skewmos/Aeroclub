@@ -1,0 +1,40 @@
+version: "3"
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/www/docker-aeroclub/nginx:/etc/nginx/conf.d
+      - /var/www/docker-aeroclub/app:/var/www/aeroclub
+    links:
+      - php
+      - db
+      - maildev
+
+  php:
+    build: php
+    restart: always
+    volumes:
+      - /var/www/docker-aeroclub/app:/var/www/aeroclub
+      - /var/www/docker-aeroclub/php/php.ini:/usr/local/etc/php/php.ini
+    links:
+      - db
+      - maildev
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=aeroclub
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - ${PWD}/postgres:/var/lib/postgres
+
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - "1080:80"
+      - "1025:25"
+
